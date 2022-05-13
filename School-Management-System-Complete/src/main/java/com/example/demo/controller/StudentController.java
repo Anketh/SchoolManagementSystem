@@ -40,8 +40,6 @@ public class StudentController {
 	@Autowired
 	private StudentRepo studentrepo;
 	
-	@Autowired
-	private UserRepository repository;
 	
 	
 	@GetMapping("/students")
@@ -118,6 +116,29 @@ public class StudentController {
 			Students updatedStudent = studentrepo.save(student);
 			return ResponseEntity.ok(updatedStudent);
 		}
+		
+		@GetMapping("/students/retrivebystandard/{standard}")
+		@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER')")
+		public List<Students> getStudentsBystandard(@PathVariable Long standard) {
+			
+			
+			
+			return studentrepo.findbyStandard(standard);
+		}
+		
+		@GetMapping("/students/retrivebyreg_no/{registraion_no}")
+		@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_STUDENT')")
+		public List<Students> getStudentsByregistration(@PathVariable Long registraion_no) {
+			
+			
+			
+			return studentrepo.findbyReg_no(registraion_no);
+		}
+		
+		
+		
+		
+		
 		
 		
 		

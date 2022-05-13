@@ -1,12 +1,17 @@
 package com.example.demo.controller;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.Assignments;
+import com.example.demo.entity.Students;
 import com.example.demo.exception.ResourseNotFoundException;
 import com.example.demo.repository.AssignmentRepo;
 
@@ -84,17 +90,37 @@ public class AssignmentController {
 	
 	@PutMapping("/assignmentsanswered/{id}")
 	@PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER')")
-	public ResponseEntity<Assignments> updateAssignmentByStudent(@PathVariable Long id,@RequestBody Assignments assignmentDetails){
+	public ResponseEntity<Assignments> updateAssignmentByStudent(@PathVariable Long id,@RequestBody Assignments assignmentDetails,Principal principal){
 		
 		Assignments assignment = assignmentrepo.findById(id)
 				.orElseThrow(() -> new ResourseNotFoundException("Assignment not exist with id :" + id));
 		
-		assignment.setAnswer(assignmentDetails.getAnswer());
+		String userdetail=assignmentrepo.findAllanswers(id)+ principal.getName();
+		
+		assignment.setAnswer(userdetail+":"+assignmentDetails.getAnswer()+",");
 		
 		Assignments updatedAssignment =assignmentrepo.save(assignment);
 
 		return ResponseEntity.ok(updatedAssignment);
 		
+	}
+	
+	@GetMapping("/assignments/retrivebystandard/{standard}")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER')")
+	public List<Assignments> getAssignmentsBystandard(@PathVariable Long standard) {
+		
+		
+		
+		return assignmentrepo.findbyStandard(standard);
+	}
+	
+	@GetMapping("/assignments/userandanwserdetails/{id}")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER')")
+	public List<String> getAssignmentsAnswersandUser(@PathVariable Long id) {
+		
+		List<String> str=  Arrays.stream(assignmentrepo.findAllanswers(id).split(",")).toList();
+		
+		return str;
 	}
 	
 	

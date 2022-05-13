@@ -40,7 +40,7 @@ public class TeacherController {
 	
 	
 		@PostMapping("/teachers")
-		@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER')")
+		@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 		public Teachers createStudent(@RequestBody Teachers teacher) {
 			return teacherRepo.save(teacher);
 		}
@@ -81,6 +81,12 @@ public class TeacherController {
 			
 			Teachers updatedTeacher = teacherRepo.save(teacher);
 			return ResponseEntity.ok(updatedTeacher);
+		}
+		
+		@GetMapping("/teachers/retrivebytreg_no/{treg_no}")
+		@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_TEACHER')")
+		public List<Teachers> getTeachersbytreg_no(@PathVariable long treg_no){
+			return teacherRepo.findbytreg_no(treg_no);
 		}
 
 
